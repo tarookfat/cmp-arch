@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Computer Architecture Exam (Green Theme)</title>
+    <style>
+        :root {
+            --primary-green: #2E7D32; /* Dark Green */
+            --light-green: #E8F5E9;   /* Very Light Green */
+            --hover-green: #4CAF50;   /* Standard Green */
+            --correct-bg: #C8E6C9;    /* Light Green for Correct */
+            --correct-border: #2E7D32;
+            --incorrect-bg: #FFCDD2;  /* Light Red */
+            --incorrect-border: #C62828;
+            --section-header: #1B5E20;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: white;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Sticky Header */
+        .header {
+            position: sticky;
+            top: 0;
+            background: var(--primary-green);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .score-board {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* Section Dividers */
+        .section-divider {
+            background-color: var(--section-header);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 40px 0 20px 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Question Cards */
+        .question-card {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+        }
+
+        .question-card:hover {
+            border-color: var(--hover-green);
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--primary-green);
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            font-size: 1rem;
+            transition: all 0.2s;
+            color: #444;
+            position: relative;
+        }
+
+        .option-btn:hover:not(.disabled) {
+            background-color: var(--light-green);
+            border-color: var(--hover-green);
+        }
+
+        /* States */
+        .correct {
+            background-color: var(--correct-bg) !important;
+            border-color: var(--correct-border) !important;
+            color: #005005;
+            font-weight: bold;
+        }
+
+        .incorrect {
+            background-color: var(--incorrect-bg) !important;
+            border-color: var(--incorrect-border) !important;
+            color: #8e0000;
+        }
+
+        .disabled {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .reset-btn {
+            background: white;
+            color: var(--primary-green);
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .nav-btn {
+            background: #eee;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .nav-btn:hover {
+            background: #ddd;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <h1>Comp Arch Master Quiz</h1>
+            <div>
+                <span class="score-board" id="score">Score: 0 / 0</span>
+                <button class="reset-btn" onclick="resetQuiz()" style="margin-left: 15px;">Reset</button>
+            </div>
+        </div>
+        
+        <div class="nav-buttons">
+            <button class="nav-btn" onclick="scrollToSection('sec-quiz1')">Quiz 1 (20)</button>
+            <button class="nav-btn" onclick="scrollToSection('sec-arch3')">Set 3 (9)</button>
+            <button class="nav-btn" onclick="scrollToSection('sec-ch1')">Ch 1 (25)</button>
+            <button class="nav-btn" onclick="scrollToSection('sec-ch2-1')">Ch 2.1 (16)</button>
+            <button class="nav-btn" onclick="scrollToSection('sec-mid')">Midterm (17)</button>
+            <button class="nav-btn" onclick="scrollToSection('sec-ch2-2')">Ch 2.2 (20)</button>
+            <button class="nav-btn" onclick="scrollToSection('sec-ch3')">Ch 3 (25)</button>
+        </div>
+
+        <div id="quiz-container">
+            </div>
+    </div>
+
+    <script>
+        // Data Structure extracted from user files
+        const quizData = [
+            // ================= QUIZ 1 (20 Questions) =================
+            { section: "Quiz 1 (Combinational Circuits)", id: "sec-quiz1", questions: [
+                { q: "1. A 4-to-1 multiplexer has how many selection lines?", options: ["2", "3", "4", "1"], a: 0 },
+                { q: "2. A 1-to-4 demultiplexer has:", options: ["1 input, 4 outputs, 2 select lines", "4 inputs, 1 output, 2 select lines", "1 input, 2 outputs, 4 select lines", "4 inputs, 4 outputs"], a: 0 },
+                { q: "3. The output of a 4-to-1 multiplexer is given by:", options: ["Y=S1S0D0+S1'S0D1+S1S0'D2+S1'S0'D3", "Y=S'1S'0D0+S'1S0D1+S1S'0D2+S1S0D3", "Y=D0+D1+D2+D3", "None"], a: 1 },
+                { q: "4. The function of a multiplexer is:", options: ["Convert binary to decimal", "Select one input from several", "Distribute one input to many", "Encode binary data"], a: 1 },
+                { q: "5. A multiplexer with 8 inputs requires how many select lines?", options: ["2", "3", "4", "8"], a: 1 },
+                { q: "6. In a 1-to-4 demultiplexer, if S1S0 = 10, which output is active?", options: ["Y0", "Y1", "Y2", "Y3"], a: 2 },
+                { q: "7. A 2-to-4 decoder has:", options: ["2 inputs, 4 outputs", "4 inputs, 2 outputs", "4 inputs, 4 outputs", "None"], a: 0 },
+                { q: "8. The output expressions for a 1-to-4 demux are:", options: ["Y0=DS1S0...", "Y0=D.S1'S0', Y1=D.S1'S0, Y2=D.S1S0', Y3=D.S1S0", "Y0=DS1S0+DS1'S0'...", "None"], a: 1 },
+                { q: "9. The demultiplexer performs:", options: ["Data selection", "Data distribution", "Binary addition", "Parity checking"], a: 1 },
+                { q: "10. Which device has 1 input and many outputs?", options: ["Multiplexer", "Demultiplexer", "Decoder", "Encoder"], a: 1 },
+                { q: "11. A decoder converts:", options: ["Non-coded data to coded", "Coded data to non-coded", "Serial to Parallel", "Parallel to Serial"], a: 1 },
+                { q: "12. How many outputs does a BCD to Decimal decoder have?", options: ["4", "8", "10", "16"], a: 2 },
+                { q: "13. An encoder is a combinational circuit that performs the reverse operation of a:", options: ["Multiplexer", "Decoder", "Adder", "Counter"], a: 1 },
+                { q: "14. A priority encoder:", options: ["Encodes the highest priority input", "Encodes the lowest priority input", "Encodes all inputs", "None"], a: 0 },
+                { q: "15. Parity generators are used to:", options: ["Correct errors", "Detect errors", "Store bits", "Generate parity"], a: 1 },
+                { q: "16. A 3x8 decoder is used to generate a full adder output 'Sum'. Which minterms correspond to Sum = 1?", options: ["1, 2, 4, 7", "0, 3, 5, 6", "1, 3, 5, 7", "2, 4, 6, 7"], a: 0 },
+                { q: "17. If input D3 and D6 are both high in a priority encoder, what will be the output?", options: ["011 (for D3)", "110 (for D6)", "100", "Undefined"], a: 1 },
+                { q: "18. Which combination best describes all four devices?", options: ["Multiplexer – Selects input", "Demultiplexer – Distributes output", "Decoder – Activates unique line", "Encoder – Compresses data (All correct descriptions in option D usually)"], a: 3 },
+                { q: "19. If F = Σm(1,4,6,7), using a 3x8 decoder, which outputs will be OR’ed?", options: ["F0, F2, F3", "F1, F4, F6, F7", "F2, F5, F7", "F1, F3, F5, F6"], a: 1 },
+                { q: "20. You want to send one signal to 8 destinations but only one at a time. Which device will you use?", options: ["Multiplexer", "Demultiplexer", "Encoder", "Decoder"], a: 1 }
+            ]},
+
+            // ================= ARCH 3 (9 Questions) =================
+            { section: "Set 3 (Misc MCQ)", id: "sec-arch3", questions: [
+                { q: "1. A 8-to-3 encoder has A0 A1 A2 output. Boolean expression for A1 is:", options: ["D1+D3+D5+D7", "D2+D3+D6+D7", "D4+D5+D6+D7", "D1+D2+D4+D6"], a: 1 },
+                { q: "2. F(a,b,c) = Σm(4,6,7) with 3-to-8 decoder, which outputs into OR gate?", options: ["Q1, Q2, Q4", "Q4, Q6, Q7", "Q0, Q4, Q6", "Q3, Q5, Q7"], a: 1 },
+                { q: "3. Key functional difference between MUX and DEMUX?", options: ["MUX: many to one; DEMUX: one to many", "MUX encodes; DEMUX decodes", "MUX has more select lines", "Identical"], a: 0 },
+                { q: "4. Select lines for 16-to-1 MUX?", options: ["2", "3", "4", "5"], a: 2 },
+                { q: "5. Role of 'enable' input?", options: ["Select input", "Activate/Deactivate device", "Set encoder mode", "Reset output"], a: 1 },
+                { q: "6. How many 4-to-1 MUX needed for 32-to-1 MUX (2 levels)?", options: ["8", "9", "10", "11"], a: 1 },
+                { q: "7. 2-to-1 MUX expression?", options: ["Q = S'D1 + SD0", "Q = S'D0 + SD1", "Q = SD0 + S'D1", "Q = (S+D0)(S'+D1)"], a: 1 },
+                { q: "8. 2-to-1 MUX output when active-high EN=0?", options: ["D0", "D1", "0 (Low)", "High Z"], a: 2 },
+                { q: "9. Circuit used to select one of several data inputs and route to single output?", options: ["Decoder", "Encoder", "Multiplexer", "Demultiplexer"], a: 2 }
+            ]},
+
+            // ================= CHAPTER 1 (25 Questions) =================
+            { section: "Chapter 1 (25 Questions)", id: "sec-ch1", questions: [
+                { q: "1. A 3-to-8 decoder is also known as:", options: ["Binary to Octal", "Binary to Hex", "BCD to Decimal", "Data Selector"], a: 0 },
+                { q: "2. An encoder with 4 inputs would have how many outputs?", options: ["1", "2", "4", "8"], a: 1 },
+                { q: "3. Which circuit is the opposite of an encoder?", options: ["Decoder", "Multiplexer", "Adder", "Flip-Flop"], a: 0 },
+                { q: "4. Which device changes serial data to parallel?", options: ["Multiplexer", "Demultiplexer", "Counter", "Flip-Flop"], a: 1 },
+                { q: "5. Which device changes parallel data to serial?", options: ["Multiplexer", "Demultiplexer", "Decoder", "Encoder"], a: 0 },
+                { q: "6. Number of inputs in a half adder?", options: ["1", "2", "3", "4"], a: 1 },
+                { q: "7. Full adder adds how many bits?", options: ["2", "3", "4", "1"], a: 1 },
+                { q: "8. Sum output of half adder is which gate?", options: ["AND", "OR", "XOR", "NAND"], a: 2 },
+                { q: "9. Carry output of half adder is which gate?", options: ["AND", "OR", "XOR", "NAND"], a: 0 },
+                { q: "10. How many half adders to make a full adder?", options: ["1", "2", "3", "4"], a: 1 },
+                { q: "11. A full adder can be implemented using:", options: ["2 HA and 1 OR", "2 HA and 1 AND", "1 HA and 1 OR", "2 OR and 1 HA"], a: 0 },
+                { q: "12. Which logic gate is used for parity generation?", options: ["AND", "OR", "XOR", "NAND"], a: 2 },
+                { q: "13. A demultiplexer is also known as:", options: ["Data Selector", "Data Distributor", "Encoder", "Decoder"], a: 1 },
+                { q: "14. A multiplexer is also known as:", options: ["Data Selector", "Data Distributor", "Encoder", "Decoder"], a: 0 },
+                { q: "15. How many select lines for 8-to-1 MUX?", options: ["2", "3", "4", "5"], a: 1 },
+                { q: "16. BCD to 7-segment decoder has how many inputs?", options: ["3", "4", "7", "10"], a: 1 },
+                { q: "17. BCD to 7-segment decoder has how many outputs?", options: ["3", "4", "7", "10"], a: 2 },
+                { q: "18. A comparator compares:", options: ["Phase", "Frequency", "Magnitude", "Voltage"], a: 2 },
+                { q: "19. An n-bit comparator has how many outputs?", options: ["1", "2", "3", "n"], a: 2 },
+                { q: "20. Which output of a comparator is high if A=B?", options: ["A>B", "A<B", "A=B", "None"], a: 2 },
+                { q: "21. Gray code is also known as:", options: ["Reflected code", "Weighted code", "Alphanumeric code", "Excess-3"], a: 0 },
+                { q: "22. The decimal equivalent of binary 1010 is:", options: ["8", "9", "10", "11"], a: 2 },
+                { q: "23. 2's complement of 1010 is:", options: ["0101", "0110", "1011", "1100"], a: 1 },
+                { q: "24. In Boolean algebra, A + A' = ?", options: ["0", "1", "A", "A'"], a: 1 },
+                { q: "25. De Morgan's theorem states (AB)' = ?", options: ["A' + B'", "A'B'", "A + B", "AB"], a: 0 }
+            ]},
+
+            // ================= CHAPTER 2 (From Arch 1 file - 16 Questions) =================
+            { section: "Chapter 2 (16 Questions)", id: "sec-ch2-1", questions: [
+                { q: "1. A latch is a:", options: ["Level triggered device", "Edge triggered device", "Master-slave", "None"], a: 0 },
+                { q: "2. A flip-flop is a:", options: ["Level triggered", "Edge triggered", "Combinational circuit", "None"], a: 1 },
+                { q: "3. The basic building block of a flip-flop is:", options: ["Latch", "Counter", "Register", "Decoder"], a: 0 },
+                { q: "4. SR Latch is made of:", options: ["AND gates", "OR gates", "NAND/NOR gates", "XOR gates"], a: 2 },
+                { q: "5. In SR Latch, S=1, R=1 leads to:", options: ["Set", "Reset", "Invalid/Forbidden", "No Change"], a: 2 },
+                { q: "6. D Latch is transparent when Enable is:", options: ["High", "Low", "Rising Edge", "Falling Edge"], a: 0 },
+                { q: "7. Which flip-flop toggles when inputs are 1?", options: ["SR", "D", "JK", "Latch"], a: 2 },
+                { q: "8. The T in T-flip flop stands for:", options: ["Time", "Toggle", "Trigger", "Test"], a: 1 },
+                { q: "9. Master-Slave flip-flop prevents:", options: ["Race around condition", "Propagation delay", "Noise", "Glitch"], a: 0 },
+                { q: "10. Which flip-flop is used for shift registers?", options: ["T", "JK", "D", "SR"], a: 2 },
+                { q: "11. A counter that counts 0, 1, 2, ..., N is:", options: ["Up counter", "Down counter", "Up/Down counter", "Random counter"], a: 0 },
+                { q: "12. Mod-10 counter counts from:", options: ["0 to 10", "0 to 9", "1 to 10", "1 to 9"], a: 1 },
+                { q: "13. How many flip-flops for Mod-16 counter?", options: ["3", "4", "5", "16"], a: 1 },
+                { q: "14. A shift register can be used for:", options: ["Addition", "Subtraction", "Delay/Serial-Parallel conversion", "Comparison"], a: 2 },
+                { q: "15. PISO stands for:", options: ["Parallel In Serial Out", "Parallel In Serial On", "Port In Serial Out", "None"], a: 0 },
+                { q: "16. SIPO stands for:", options: ["Serial In Parallel Out", "Serial In Parallel On", "System In Port Out", "None"], a: 0 }
+            ]},
+
+            // ================= MIDTERM (17 Questions) =================
+            { section: "Midterm Exam (17 Questions)", id: "sec-mid", questions: [
+                { q: "1. Primary function of Multiplexer (MUX)?", options: ["Encode inputs", "Select one input to output", "Decode binary", "Convert Parallel to Serial"], a: 1 },
+                { q: "2. Select lines for 4-to-1 MUX?", options: ["1", "2", "4", "8"], a: 1 },
+                { q: "3. 2-to-1 MUX, S=0, which input?", options: ["Both", "D1", "D0", "Neither"], a: 2 },
+                { q: "4. Boolean expression for 2-to-1 MUX?", options: ["Q=S.D0", "Q=S'.D1+S.D0", "Q=S'.D0+S.D1", "Q=D0.D1"], a: 2 },
+                { q: "5. Main function of decoder?", options: ["Route input", "Select data", "Arithmetic", "Convert n-bit binary to 1-active output"], a: 3 },
+                { q: "6. 3-to-8 decoder inputs/outputs?", options: ["8 in 8 out", "8 in 3 out", "3 in 3 out", "3 in 8 out"], a: 3 },
+                { q: "7. 2-to-4 decoder, S1=1, S0=0, which active?", options: ["Q0", "Q1", "Q3", "Q2"], a: 3 },
+                { q: "8. Purpose of 'enable' on decoder?", options: ["Power on/off", "Activate/Deactivate device", "MSB", "Reset"], a: 1 },
+                { q: "9. Output lines of 4-to-16 decoder?", options: ["4", "8", "16", "32"], a: 2 },
+                { q: "10. Which circuit performs 2's complement?", options: ["Adder", "Subtractor", "Inverter + Adder", "Comparator"], a: 2 },
+                { q: "11. Half adder inputs?", options: ["1", "2", "3", "4"], a: 1 },
+                { q: "12. Full adder inputs?", options: ["1", "2", "3", "4"], a: 2 },
+                { q: "13. Logic gate for Carry in Half Adder?", options: ["OR", "XOR", "AND", "NAND"], a: 2 },
+                { q: "14. Why are NAND/NOR universal gates?", options: ["Minimum circuit", "Can create any boolean function", "Minimize functions", "Minimal gates"], a: 1 },
+                { q: "15. Output of 2-to-1 MUX when EN=0?", options: ["D0", "D1", "AND(D0,D1)", "0 (Disabled)"], a: 3 },
+                { q: "16. 4-to-1 MUX (Q=S1'S0'D0...), if S1=1, S0=0, select?", options: ["D0", "D1", "D3", "D2"], a: 3 },
+                { q: "17. Purpose of select lines in Demultiplexer?", options: ["Choose input", "Encode output", "Enable device", "Determine which output gets input"], a: 3 }
+            ]},
+
+            // ================= CHAPTER 2 (MCQ File - 20 Questions) =================
+            { section: "MCQ File: Chapter 2 (20 Questions)", id: "sec-ch2-2", questions: [
+                { q: "1. Sequential circuit output depends on:", options: ["Present inputs only", "Past outputs only", "Present inputs + Past state", "Clock only"], a: 2 },
+                { q: "2. Flip-flops are classified as:", options: ["Combinational", "Memory elements", "Arithmetic", "Control"], a: 1 },
+                { q: "3. Flip-flop is:", options: ["Multi-bit memory", "1-bit bistable element", "Temporary storage", "Counter"], a: 1 },
+                { q: "4. SR stands for:", options: ["Shift-Reset", "Set-Reset", "Store-Read", "State-Register"], a: 1 },
+                { q: "5. SR flip-flop inputs:", options: ["1", "2", "3", "4"], a: 1 },
+                { q: "6. SR input S does what?", options: ["Reset", "Toggle", "Set (1)", "Hold"], a: 2 },
+                { q: "7. SR input R does what?", options: ["Set", "Reset (0)", "Toggle", "Enable"], a: 1 },
+                { q: "8. SR flip-flop is the most:", options: ["Complex", "Expensive", "Basic sequential circuit", "Fastest"], a: 2 },
+                { q: "9. SR flip-flop also known as:", options: ["Counter", "Register", "SR Latch", "Decoder"], a: 2 },
+                { q: "10. Without clock, flip-flop output may:", options: ["Never change", "Change uncontrollably", "Reset", "Toggle"], a: 1 },
+                { q: "11. Purpose of clock?", options: ["Speed", "Isolate/Sync data", "Reset", "Toggle"], a: 1 },
+                { q: "12. Data copied to Q when clock is:", options: ["Low", "Disabled", "Active (Edge)", "Constant"], a: 2 },
+                { q: "13. D flip-flop derived from?", options: ["JK", "T", "SR", "Master-Slave"], a: 2 },
+                { q: "14. D flip-flop inputs (excl clock)?", options: ["1", "2", "3", "4"], a: 0 },
+                { q: "15. 'D' stands for:", options: ["Double", "Data/Delay", "Digital", "Direct"], a: 1 },
+                { q: "16. If D=1 and Clock active, Q=?", options: ["0", "1", "No Change", "Toggle"], a: 1 },
+                { q: "17. If D=0 and Clock active, Q=?", options: ["0", "1", "No Change", "Toggle"], a: 0 },
+                { q: "18. JK flip-flop improves:", options: ["D FF", "SR FF", "T FF", "Master-Slave"], a: 1 },
+                { q: "19. JK J=1 K=1 leads to:", options: ["Set", "Reset", "Toggle", "No Change"], a: 2 },
+                { q: "20. JK J=0 K=0 leads to:", options: ["Set", "Reset", "Toggle", "No Change"], a: 3 }
+            ]},
+
+            // ================= CHAPTER 3 (MCQ File - 25 Questions) =================
+            { section: "MCQ File: Chapter 3 (25 Questions)", id: "sec-ch3", questions: [
+                { q: "1. A T flip-flop is known as:", options: ["Toggle FF", "Time FF", "Trigger FF", "Transfer FF"], a: 0 },
+                { q: "2. T flip-flop inputs?", options: ["1", "2", "3", "4"], a: 0 },
+                { q: "3. If T=1, output:", options: ["Sets", "Resets", "Toggles", "Holds"], a: 2 },
+                { q: "4. If T=0, output:", options: ["Sets", "Resets", "Toggles", "Holds"], a: 3 },
+                { q: "5. Flip-flop for counters?", options: ["SR", "D", "T", "Latch"], a: 2 },
+                { q: "6. Master-Slave eliminates:", options: ["Race-around", "Delay", "Noise", "Power loss"], a: 0 },
+                { q: "7. Registers made of:", options: ["AND gates", "OR gates", "Flip-Flops", "Inverters"], a: 2 },
+                { q: "8. N-bit register has how many FFs?", options: ["N", "2N", "N/2", "1"], a: 0 },
+                { q: "9. Register that shifts data:", options: ["Buffer", "Shift Register", "Parallel", "Counter"], a: 1 },
+                { q: "10. Counter is circuit that:", options: ["Stores", "Counts pulses", "Decodes", "Encodes"], a: 1 },
+                { q: "11. Asynchronous counter also called:", options: ["Ripple Counter", "Parallel", "Ring", "Decade"], a: 0 },
+                { q: "12. Synchronous counter clock applied to:", options: ["First FF", "Last FF", "All FFs same time", "Random"], a: 2 },
+                { q: "13. Which is faster?", options: ["Asynchronous", "Synchronous", "Same", "Depends"], a: 1 },
+                { q: "14. 4-bit counter counts up to:", options: ["8", "10", "15", "16"], a: 2 },
+                { q: "15. States in 3-bit counter?", options: ["3", "6", "8", "9"], a: 2 },
+                { q: "16. Decade counter (Mod-10) states?", options: ["8", "10", "16", "20"], a: 1 },
+                { q: "17. Reset used to:", options: ["Start count", "Stop count", "Clear to 0", "Set to 1"], a: 2 },
+                { q: "18. Ring counter is a type of:", options: ["Shift Register Counter", "Ripple Counter", "Async Counter", "Combinational"], a: 0 },
+                { q: "19. Johnson counter is also:", options: ["Twisted Ring", "Straight Ring", "Ripple", "Decade"], a: 0 },
+                { q: "20. Parallel Load in register means:", options: ["Load bits one by one", "Load all bits same time", "Shift bits", "Clear bits"], a: 1 },
+                { q: "21. Serial Load means:", options: ["Load bits one by one", "Load all bits", "Clear", "Set"], a: 0 },
+                { q: "22. Universal Shift Register can:", options: ["Shift Left", "Shift Right", "Parallel Load", "All of above"], a: 3 },
+                { q: "23. 4-bit ring counter sequence length:", options: ["4", "8", "16", "2"], a: 0 },
+                { q: "24. 4-bit Johnson counter sequence length:", options: ["4", "8", "16", "2"], a: 1 },
+                { q: "25. Setup time is:", options: ["Time data stable before clock", "Time data stable after clock", "Clock width", "Delay"], a: 0 }
+            ]}
+        ];
+
+        let score = 0;
+        let totalQuestions = 0;
+        
+        // Flatten structure for counting
+        quizData.forEach(sec => totalQuestions += sec.questions.length);
+
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            quizData.forEach((sectionData, sIndex) => {
+                // Section Header
+                const divider = document.createElement('div');
+                divider.className = 'section-divider';
+                divider.id = sectionData.id;
+                divider.textContent = sectionData.section;
+                container.appendChild(divider);
+
+                sectionData.questions.forEach((item, qIndex) => {
+                    const card = document.createElement('div');
+                    card.className = 'question-card';
+                    
+                    const meta = document.createElement('div');
+                    meta.className = 'question-meta';
+                    // Unique ID for internal tracking if needed
+                    meta.textContent = `${sectionData.section} | Q${qIndex + 1}`;
+                    card.appendChild(meta);
+
+                    const qText = document.createElement('div');
+                    qText.className = 'question-text';
+                    qText.textContent = item.q;
+                    card.appendChild(qText);
+
+                    const optionsGrid = document.createElement('div');
+                    optionsGrid.className = 'options-grid';
+
+                    item.options.forEach((opt, optIndex) => {
+                        const btn = document.createElement('button');
+                        btn.className = 'option-btn';
+                        btn.textContent = opt;
+                        
+                        // Store indices to verify answer
+                        btn.onclick = () => checkAnswer(btn, optionsGrid, optIndex, item.a);
+                        
+                        optionsGrid.appendChild(btn);
+                    });
+
+                    card.appendChild(optionsGrid);
+                    container.appendChild(card);
+                });
+            });
+            updateScore();
+        }
+
+        function checkAnswer(btn, grid, selectedIndex, correctIndex) {
+            const buttons = grid.getElementsByClassName('option-btn');
+            
+            // Check if already answered
+            for(let b of buttons) {
+                if(b.classList.contains('correct') || b.classList.contains('incorrect')) return;
+            }
+
+            const isCorrect = selectedIndex === correctIndex;
+            
+            if (isCorrect) {
+                btn.classList.add('correct');
+                score++;
+            } else {
+                btn.classList.add('incorrect');
+                // Highlight correct
+                if (correctIndex >= 0 && correctIndex < buttons.length) {
+                    buttons[correctIndex].classList.add('correct');
+                }
+            }
+
+            // Disable buttons
+            for(let b of buttons) {
+                b.classList.add('disabled');
+            }
+
+            updateScore();
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = `Score: ${score} / ${totalQuestions}`;
+        }
+
+        function resetQuiz() {
+            score = 0;
+            renderQuiz();
+            window.scrollTo(0,0);
+        }
+        
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                // Offset for sticky header
+                const y = el.getBoundingClientRect().top + window.scrollY - 80;
+                window.scrollTo({top: y, behavior: 'smooth'});
+            }
+        }
+
+        // Initialize
+        renderQuiz();
+    </script>
+</body>
+</html>
